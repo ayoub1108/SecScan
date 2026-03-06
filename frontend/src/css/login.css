@@ -1,0 +1,239 @@
+/* =============================================
+   CYBERSEC VELOCITY LOGIN - DARK/LIGHT MODE
+   ============================================= */
+
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --text-primary: white;
+    --text-secondary: #666;
+    --text-muted: #444;
+    --border-color: #222222;
+    --border-focus: #00ff88;
+    --accent-color: #00ff88;
+    --accent-hover: #00cc6a;
+    --error-bg: #2a1a1a;
+    --error-text: #ff6b6b;
+    --error-border: #ff4444;
+    --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+    --bg-primary: #f5f5f5;
+    --bg-secondary: white;
+    --text-primary: #111111;
+    --text-secondary: #444;
+    --text-muted: #666;
+    --border-color: #ddd;
+    --border-focus: #00cc6a;
+    --accent-color: #00cc6a;
+    --accent-hover: #00b35a;
+    --error-bg: #ffeeee;
+    --error-text: #dc3545;
+    --error-border: #dc3545;
+    --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.cybersec-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    border-color: var(--accent-color);
+}
+
+.cybersec-card {
+    padding: 10px;
+    background: var(--bg-secondary);
+    padding: 48px 40px;
+    border-radius: 24px;
+    width: 550px;
+    max-width: 1000px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.cybersec-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+.logo-shield {
+    font-size: 37px;
+    color: var(--accent-color);
+}
+
+.logo-text {
+    color: var(--text-primary);
+    font-size: 35px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding-left: 50px; 
+    justify-content: centerS;
+}
+
+.cybersec-title {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+}
+
+.cybersec-error {
+    background: var(--error-bg);
+    color: var(--error-text);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+    border-left: 4px solid var(--error-border);
+}
+
+.cybersec-input-group {
+    margin-bottom: 24px;
+}
+
+.cybersec-input-group input {
+    width: 100%;
+    padding: 16px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.cybersec-input-group input:focus {
+    outline: none;
+    border-bottom-color: var(--accent-color);
+}
+
+.cybersec-input-group input::placeholder {
+    color: var(--text-muted);
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.cybersec-forgot {
+    text-align: right;
+    margin: 16px 0 32px;
+}
+
+.cybersec-forgot a {
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.cybersec-forgot a:hover {
+    color: var(--accent-color);
+}
+
+.cybersec-button {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent-color);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.cybersec-button:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
+}
+
+.cybersec-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cybersec-register {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.cybersec-register p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.cybersec-link {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+.cybersec-link:hover {
+    opacity: 0.8;
+}
+
+/* Smooth transitions */
+* {
+    transition: background-color 0.3s ease,
+                border-color 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .cybersec-card {
+        padding: 32px 24px;
+        margin: 20px;
+    }
+    
+    .cybersec-logo {
+        margin-bottom: 30px;
+    }
+    
+    .logo-text {
+        font-size: 20px;
+    }
+}

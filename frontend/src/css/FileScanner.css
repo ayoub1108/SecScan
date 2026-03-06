@@ -1,0 +1,528 @@
+.file-scanner {
+    animation: fadeIn 0.3s ease;
+}
+
+.scanner-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.scanner-header h1 {
+    color: #2c3e50;
+    font-size: 28px;
+    margin: 10px 0 5px;
+}
+
+.scanner-header p {
+    color: #7f8c8d;
+    font-size: 16px;
+}
+
+.scanner-interface {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Upload Area */
+.upload-area {
+    background: #f8fafc;
+    border: 3px dashed #cbd5e0;
+    border-radius: 16px;
+    padding: 60px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.upload-area:hover {
+    border-color: #3498db;
+    background: #f0f7ff;
+}
+
+.upload-area.dragover {
+    border-color: #2ecc71;
+    background: #f0fff4;
+}
+
+.upload-area.has-file {
+    padding: 30px 20px;
+    background: #f0f7ff;
+    border-color: #3498db;
+}
+
+.upload-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.upload-area h2 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.upload-area p {
+    color: #7f8c8d;
+    margin: 5px 0;
+}
+
+.browse-link {
+    color: #3498db;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.file-limit {
+    font-size: 13px;
+    color: #95a5a6;
+    margin-top: 15px;
+}
+
+/* File Preview */
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.file-icon {
+    font-size: 40px;
+}
+
+.file-details {
+    flex: 1;
+    text-align: left;
+}
+
+.file-details h3 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+
+.file-details p {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.change-file-btn {
+    padding: 8px 16px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+.change-file-btn:hover {
+    background: #c0392b;
+}
+
+/* Scan Button */
+.scan-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 20px 0;
+}
+
+.scan-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+}
+
+.scan-btn.scanning {
+    background: #95a5a6;
+    cursor: not-allowed;
+}
+
+.scan-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Error Message */
+.error-message {
+    background: #fee;
+    color: #c33;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+    border-left: 4px solid #c33;
+}
+
+/* Results Section */
+.results-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin: 30px 0;
+}
+
+.file-hash {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: monospace;
+}
+
+.file-hash code {
+    flex: 1;
+    word-break: break-all;
+    color: #2c3e50;
+}
+
+.copy-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s ease;
+}
+
+.copy-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Detection Summary */
+.detection-summary {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin: 30px 0;
+}
+
+.detection-ratio {
+    text-align: center;
+}
+
+.detection-ratio.malicious .ratio-number {
+    color: #e74c3c;
+}
+
+.detection-ratio.safe .ratio-number {
+    color: #27ae60;
+}
+
+.ratio-number {
+    font-size: 48px;
+    font-weight: bold;
+    display: block;
+    line-height: 1;
+}
+
+.ratio-label {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    flex: 1;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.stat-item.malicious .stat-value {
+    color: #e74c3c;
+}
+
+.stat-item.suspicious .stat-value {
+    color: #f39c12;
+}
+
+.stat-item.harmless .stat-value {
+    color: #27ae60;
+}
+
+.stat-item.undetected .stat-value {
+    color: #7f8c8d;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Engine Results Table */
+.engine-results {
+    margin-top: 30px;
+}
+
+.engine-results h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.engine-results table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.engine-results th {
+    text-align: left;
+    padding: 12px;
+    background: #f8fafc;
+    color: #2c3e50;
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.engine-results td {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.engine-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.category-badge.malicious {
+    background: #fee;
+    color: #c33;
+}
+
+.category-badge.suspicious {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.category-badge.harmless {
+    background: #d4edda;
+    color: #155724;
+}
+
+.category-badge.undetected {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.engine-result {
+    color: #7f8c8d;
+}
+
+/* Recent Scans */
+.recent-scans {
+    margin-top: 30px;
+}
+
+.recent-scans h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.scan-history {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.history-item:hover {
+    background: #f8fafc;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.history-details {
+    flex: 1;
+}
+
+.history-name {
+    display: block;
+    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #95a5a6;
+}
+
+.history-status {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.history-status.malicious {
+    background: #fee;
+    color: #c33;
+}
+
+.history-status.safe {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .detection-summary {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .file-hash {
+        flex-wrap: wrap;
+    }
+}
+/* Add to your existing FileScanner.css */
+
+/* Recent Scans Header */
+.recent-scans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.recent-scans-header h3 {
+    color: #2c3e50;
+    margin: 0;
+}
+
+.clear-history-btn {
+    padding: 6px 12px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-history-btn:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* History Item with Remove Button */
+.history-stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.history-remove {
+    background: none;
+    border: none;
+    color: #95a5a6;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: all 0.2s ease;
+    opacity: 0.5;
+}
+
+.history-item:hover .history-remove {
+    opacity: 1;
+}
+
+.history-remove:hover {
+    color: #e74c3c;
+    transform: scale(1.2);
+}
+
+/* Scan Date in Results */
+.scan-date {
+    color: #7f8c8d;
+    font-size: 13px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* History Note */
+.history-note {
+    text-align: center;
+    color: #95a5a6;
+    font-size: 12px;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 5px;
+}

@@ -1,0 +1,25 @@
+﻿# Python
+__pycache__/
+*.pyc
+venv/
+env/
+instance/
+*.db
+
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# React build
+build/
+dist/
+
+# Environment
+.env
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,37 @@
+
+# EXAMPLE: DO NOT USE IN PRODUCTION
+# This is a demonstration file showing what NOT to do
+
+# High: Hardcoded API keys and credentials
+api:
+  key: "api_key_12345"
+  secret: "api_secret_abcdef"
+
+database:
+  username: "db_admin"
+  password: "password123"
+  hostname: "db.example.com"
+  ssl_verify: false  # Medium: Disabling SSL verification
+
+security:
+  # Medium: Weak security settings
+  minimum_password_length: 4
+  allow_basic_auth: true
+  disable_csrf_protection: true
+  
+logging:
+  # Low: Excessive logging might leak sensitive data
+  log_level: "debug"
+  log_requests: true
+  log_responses: true
+
+# Low: Default admin account
+admin:
+  username: "admin"
+  password: "admin"  # Should be changed on first login
+  
+# Low: Open CORS policy
+cors:
+  allow_origin: "*"
+  allow_methods: "*"
+  allow_headers: "*"

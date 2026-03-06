@@ -1,0 +1,416 @@
+/* Register.css - Horizontal Layout */
+
+:root {
+    --bg-gradient-start: #667eea;
+    --bg-gradient-end: #764ba2;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --text-primary: #333;
+    --text-secondary: #666;
+    --label-color: #555;
+    --input-border: #ddd;
+    --input-focus-border: #667eea;
+    --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --button-hover-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    --error-bg: #fee;
+    --error-text: #c33;
+    --error-border: #c33;
+    --link-color: #667eea;
+    --success-color: #27ae60;
+    --success-bg: #d4edda;
+    --api-connected: #27ae60;
+    --api-disconnected: #e74c3c;
+    --api-checking: #f39c12;
+}
+
+[data-theme="dark"] {
+    --bg-gradient-start: #1a1a2e;
+    --bg-gradient-end: #16213e;
+    --card-bg: rgba(30, 30, 46, 0.95);
+    --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    --text-primary: #eaeaea;
+    --text-secondary: #b0b0b0;
+    --label-color: #ccc;
+    --input-border: #444;
+    --input-focus-border: #8a6de9;
+    --button-bg: linear-gradient(135deg, #8a6de9 0%, #4a3f7a 100%);
+    --button-hover-shadow: 0 10px 20px rgba(138, 109, 233, 0.4);
+    --error-bg: #442626;
+    --error-text: #ff8a8a;
+    --error-border: #ff6b6b;
+    --link-color: #8a6de9;
+    --success-color: #2ecc71;
+    --success-bg: #1e3a2e;
+    --api-connected: #2ecc71;
+    --api-disconnected: #ff7675;
+    --api-checking: #f39c12;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, 
+                border-color 0.2s ease, 
+                color 0.2s ease, 
+                box-shadow 0.2s ease;
+}
+
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    padding: 20px;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.theme-toggle-wrapper {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.theme-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.register-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: var(--card-shadow);
+    width: 100%;
+    max-width: 800px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.register-header h1 {
+    color: var(--text-primary);
+    font-size: 32px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.register-header p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.api-status {
+    text-align: center;
+    padding: 8px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--card-bg);
+    border: 1px solid var(--input-border);
+}
+
+.api-status[data-status="connected"] { color: var(--api-connected); }
+.api-status[data-status="disconnected"] { color: var(--api-disconnected); }
+.api-status[data-status="checking"] { color: var(--api-checking); }
+
+.error-message {
+    background: var(--error-bg);
+    color: var(--error-text);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+    border-left: 4px solid var(--error-border);
+}
+
+/* Horizontal Form Layout */
+.horizontal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    width: 100%;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--label-color);
+    font-weight: 500;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--input-border);
+    border-radius: 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-group input.error {
+    border-color: var(--error-border);
+}
+
+.input-group input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.field-error {
+    display: block;
+    color: var(--error-text);
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+/* Password Section - Full Width */
+.password-section {
+    grid-column: 1 / -1;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    border: 1px solid var(--input-border);
+    margin: 5px 0;
+}
+
+.password-strength {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--input-border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.strength-text {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 70px;
+}
+
+.password-requirements {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    font-size: 11px;
+}
+
+.password-requirements p {
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+}
+
+.password-requirements p.valid {
+    color: var(--success-color);
+}
+
+.password-requirements p.invalid {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+/* Register Button */
+.register-button {
+    width: 100%;
+    padding: 14px;
+    background: var(--button-bg);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.register-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--button-hover-shadow);
+}
+
+.register-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.register-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--input-border);
+}
+
+.register-footer p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: var(--link-color);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0 5px;
+    font-size: 14px;
+}
+
+.link-button:hover {
+    opacity: 0.8;
+}
+
+/* Success Card */
+.success-card {
+    text-align: center;
+    padding: 50px 40px;
+}
+
+.success-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: scaleIn 0.5s ease;
+}
+
+.success-card h2 {
+    color: var(--success-color);
+    margin-bottom: 15px;
+    font-size: 28px;
+}
+
+.success-card p {
+    color: var(--text-secondary);
+    margin: 10px 0;
+}
+
+.redirect-note {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.login-button {
+    padding: 12px 30px;
+    background: var(--button-bg);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--button-hover-shadow);
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .register-card {
+        padding: 30px 20px;
+    }
+    
+    .register-header h1 {
+        font-size: 26px;
+    }
+    
+    .password-requirements {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-toggle-wrapper {
+        top: 10px;
+        right: 10px;
+    }
+}

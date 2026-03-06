@@ -1,0 +1,461 @@
+/* License.css */
+
+/* CSS Variables for theming */
+:root {
+    --card-bg: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --social-bg: #f8fafc;
+    --social-icon-bg: #3f3b39;
+    --social-icon-color: #f8f8f8;
+    --gradient-start: #667eea;
+    --gradient-end: #764ba2;
+    --button-bg: #f1f5f9;
+    --button-hover: #e2e8f0;
+    --hover-transform: 5px;
+}
+
+[data-theme="dark"] {
+    --card-bg: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --social-bg: #2d3748;
+    --social-icon-bg: #4a5568;
+    --social-icon-color: #f8f8f8;
+    --gradient-start: #60a5fa;
+    --gradient-end: #c084fc;
+    --button-bg: #2d3748;
+    --button-hover: #4a5568;
+    --hover-transform: 5px;
+}
+
+.license-container {
+    min-height: 100vh;
+    background: var(--bg-primary, #f8fafc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.license-wrapper {
+    width: 100%;
+    max-width: 800px;
+}
+/* Cinematic Effect */
+@keyframes cinematic {
+    0% {
+        filter: brightness(1) saturate(1);
+        transform: scale(1);
+    }
+    50% {
+        filter: brightness(1.2) saturate(1.2);
+        transform: scale(1.03);
+    }
+    100% {
+        filter: brightness(1) saturate(1);
+        transform: scale(1);
+    }
+}
+
+.license-card .profile-image:hover {
+    animation: cinematic 0.8s ease-in-out;
+    box-shadow: 0 30px 40px -20px var(--accent-primary);
+}
+
+.back-button {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: var(--button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: var(--button-hover);
+    transform: translateX(-4px);
+}
+
+.license-card {
+    --card-color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 750px;
+    padding: 44px 30px 44px 20px;
+    background: var(--card-color);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.license-card .profile-image {
+    max-width: 280px;
+    width: 36vw;
+    height: 400px;
+    margin-left: -60px;
+    margin-right: 30px;
+    border-radius: 0 50px 50px 0;
+    box-shadow: 0 60px 40px rgba(0, 0, 0, 0.08);
+    transition: border-radius 0.3s;
+    object-fit: cover;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.license-card .creator-name {
+    color: var(--text-primary);
+    margin: 0 30px 10px 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.license-card .creator-role {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0 0 12px 0;
+    opacity: 0.75;
+}
+
+.license-card .creator-bio {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    margin-bottom: 30px;
+    opacity: 0.5;
+    line-height: 1.6;
+}
+
+/* License Info Section */
+.license-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: var(--social-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.license-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.license-item:last-child {
+    border-bottom: none;
+}
+
+.license-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.license-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Social Media Links */
+.socials {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 40px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
+}
+
+/* LinkedIn */
+.social-link[data-brand="linkedin"] {
+    background: rgba(0, 119, 181, 0.1);
+    border-color: var(--light-color);
+}
+
+.social-link[data-brand="linkedin"] i {
+    color: #0077b5;
+    font-size: 20px;
+}
+
+.social-link[data-brand="linkedin"] .social-name {
+    color: #0077b5;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .social-link[data-brand="linkedin"] {
+    background: rgba(10, 102, 194, 0.2);
+    border-color: #0a66c2;
+}
+
+[data-theme="dark"] .social-link[data-brand="linkedin"] i,
+[data-theme="dark"] .social-link[data-brand="linkedin"] .social-name {
+    color: #0a66c2;
+}
+
+/* GitHub */
+.social-link[data-brand="github"] {
+    background: rgba(36, 41, 46, 0.1);
+    border-color: #24292e;
+}
+
+.social-link[data-brand="github"] i {
+    color: #24292e;
+    font-size: 20px;
+}
+
+.social-link[data-brand="github"] .social-name {
+    color: #24292e;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .social-link[data-brand="github"] {
+    background: rgba(240, 246, 252, 0.1);
+    border-color: #f0f6fc;
+}
+
+[data-theme="dark"] .social-link[data-brand="github"] i,
+[data-theme="dark"] .social-link[data-brand="github"] .social-name {
+    color: #f0f6fc;
+}
+
+/* YouTube */
+.social-link[data-brand="youtube"] {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #cc0000;
+}
+
+.social-link[data-brand="youtube"] i {
+    color: #ff0000;
+    font-size: 20px;
+}
+
+.social-link[data-brand="youtube"] .social-name {
+    color: #cc0000;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .social-link[data-brand="youtube"] {
+    background: rgba(255, 77, 77, 0.15);
+    border-color: #ff4d4d;
+}
+
+[data-theme="dark"] .social-link[data-brand="youtube"] i,
+[data-theme="dark"] .social-link[data-brand="youtube"] .social-name {
+    color: #ff4d4d;
+}
+
+.social-link:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.1);
+}
+
+/* Copyright */
+.copyright {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 15px;
+    opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (width <= 600px) {
+    .license-card {
+        margin: 0 40px;
+        padding: 0 50px 60px;
+        width: 100%;
+        text-align: center;
+        flex-direction: column;
+    }
+
+    .license-card .creator-name {
+        margin-right: 0;
+        font-size: 26px;
+    }
+
+    .license-card .profile-image {
+        margin: -100px 0 30px;
+        width: 100%;
+        max-width: 1000px;
+        height: 250px;
+    }
+
+    .license-card .creator-bio {
+        max-width: 360px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .socials {
+        justify-content: center;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .license-info {
+        max-width: 360px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (width <= 440px) {
+    .license-card .profile-image {
+        width: 50vw;
+        height: 50vw;
+        border-radius: 50%;
+        border: 12px solid var(--card-color);
+        box-shadow: none;
+        margin: -140px 0 30px;
+    }
+
+    .license-card {
+        padding: 0 30px 50px;
+    }
+}
+
+/* Animation for social links */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.social-link:first-child {
+    animation: pulse 2s infinite;
+}
+/* Add/modify these styles for the social links */
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.social-link i {
+    font-size: 24px;  /* Logo size */
+    transition: transform 0.3s ease;
+}
+
+.social-link:hover i {
+    transform: scale(1.2);
+}
+
+/* LinkedIn */
+.social-link[data-brand="linkedin"] {
+    background: rgba(0, 119, 181, 0.1);
+    border-color: #0077b5;
+}
+
+.social-link[data-brand="linkedin"] i {
+    color: #0077b5;
+}
+
+.social-link[data-brand="linkedin"] .social-name {
+    color: #0077b5;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .social-link[data-brand="linkedin"] {
+    background: rgba(10, 102, 194, 0.2);
+    border-color: #0a66c2;
+}
+
+[data-theme="dark"] .social-link[data-brand="linkedin"] i,
+[data-theme="dark"] .social-link[data-brand="linkedin"] .social-name {
+    color: #0a66c2;
+}
+
+/* GitHub */
+.social-link[data-brand="github"] {
+    background: rgba(36, 41, 46, 0.1);
+    border-color: #24292e;
+}
+
+.social-link[data-brand="github"] i {
+    color: #24292e;
+}
+
+.social-link[data-brand="github"] .social-name {
+    color: #24292e;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .social-link[data-brand="github"] {
+    background: rgba(240, 246, 252, 0.1);
+    border-color: #f0f6fc;
+}
+
+[data-theme="dark"] .social-link[data-brand="github"] i,
+[data-theme="dark"] .social-link[data-brand="github"] .social-name {
+    color: #f0f6fc;
+}
+
+/* YouTube */
+.social-link[data-brand="youtube"] {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #ff0000;
+}
+
+.social-link[data-brand="youtube"] i {
+    color: #ff0000;
+}
+
+.social-link[data-brand="youtube"] .social-name {
+    color: #cc0000;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .social-link[data-brand="youtube"] {
+    background: rgba(255, 77, 77, 0.15);
+    border-color: #ff4d4d;
+}
+
+[data-theme="dark"] .social-link[data-brand="youtube"] i,
+[data-theme="dark"] .social-link[data-brand="youtube"] .social-name {
+    color: #ff4d4d;
+}
+
+.social-link:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}

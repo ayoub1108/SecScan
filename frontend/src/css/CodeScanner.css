@@ -1,0 +1,127 @@
+/* Status Badge */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.status-badge.ready {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.error {
+    background: #f8d7da;
+    color: #721c24;
+    cursor: pointer;
+}
+
+/* Stats Summary */
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    display: block;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Findings List */
+.findings-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.finding-card {
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid;
+    background: #f8f9fa;
+}
+
+.finding-card.critical { border-left-color: #dc3545; }
+.finding-card.high { border-left-color: #fd7e14; }
+.finding-card.medium { border-left-color: #ffc107; }
+.finding-card.low { border-left-color: #28a745; }
+
+.finding-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.severity-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.severity-badge.critical { background: #dc3545; color: white; }
+.severity-badge.high { background: #fd7e14; color: white; }
+.severity-badge.medium { background: #ffc107; color: #333; }
+.severity-badge.low { background: #28a745; color: white; }
+
+.finding-type {
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.finding-line {
+    font-size: 12px;
+    color: #666;
+    background: #e9ecef;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.finding-message {
+    color: #555;
+    font-size: 13px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.finding-metadata {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+    color: #666;
+}
+
+.finding-cwe, .finding-confidence {
+    background: #e9ecef;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
