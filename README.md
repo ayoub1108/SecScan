@@ -5,6 +5,8 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🚀 Overview
+<img width="682" height="1170" alt="Untitled Diagram drawio (1)" src="https://github.com/user-attachments/assets/2e3c1396-7371-40cc-9255-017c53cbd41c" />
+
 
 **SecScan** is an all-in-one security testing toolkit designed for penetration testers, security researchers, and developers. It combines multiple security scanning tools into a unified platform with both CLI and GUI interfaces.
 
