@@ -51,7 +51,7 @@ def run_scan_in_background(scan_id, database_uri):
     session.commit()
     session.close()
 
-# --- Helper Function for Security Score Calculation (consistent logic) ---
+# --- Helper Function for Security Score Calculation ---
 def calculate_security_score_and_vulns(scan_data):
     score = 100
     vulns_count = 0
@@ -79,20 +79,123 @@ def calculate_security_score_and_vulns(scan_data):
     
     for header in expected_headers:
         if header not in headers_found:
-            if header == "content-security-policy": score -= 15; vulns_count += 1
-            if header == "strict-transport-security": score -= 15; vulns_count += 1
-            else: vulns_count += 1 
+            if header == "content-security-policy": 
+                score -= 15
+                vulns_count += 1
+            elif header == "strict-transport-security": 
+                score -= 15
+                vulns_count += 1
+            else: 
+                vulns_count += 1 
 
     if 'vulnerabilities' in scan_data:
         vulns_count += len(scan_data['vulnerabilities']) 
         for vuln in scan_data['vulnerabilities']:
             severity = vuln.get('severity')
-            if severity == 'Critical': score -= 25 
-            elif severity == 'High': score -= 20
-            elif severity == 'Medium': score -= 10
-            elif severity == 'Low': score -= 5
+            if severity == 'Critical': 
+                score -= 25 
+            elif severity == 'High': 
+                score -= 20
+            elif severity == 'Medium': 
+                score -= 10
+            elif severity == 'Low': 
+                score -= 5
             
     return max(0, score), vulns_count
+
+# --- Helper function to safely get email security status ---
+def get_email_security_status(data):
+    """Safely extract email security status, handling both dict and bool values"""
+    email_security = data.get('email_security', {})
+    
+    # Handle case where email_security is a boolean
+    if isinstance(email_security, bool):
+        return {'spf': {'present': email_security}, 'dmarc': {'present': email_security}}
+    
+    # Handle case where email_security is a dictionary
+    if isinstance(email_security, dict):
+        spf = email_security.get('spf', {})
+        dmarc = email_security.get('dmarc', {})
+        
+        # Handle if spf/dmarc are booleans
+        if isinstance(spf, bool):
+            spf = {'present': spf}
+        if isinstance(dmarc, bool):
+            dmarc = {'present': dmarc}
+            
+        return {
+            'spf': spf if isinstance(spf, dict) else {'present': False},
+            'dmarc': dmarc if isinstance(dmarc, dict) else {'present': False}
+        }
+    
+    return {'spf': {'present': False}, 'dmarc': {'present': False}}
+
+# --- Helper function to sanitize scan data for template ---
+def sanitize_scan_data_for_template(data):
+    """Completely sanitize scan data to prevent template errors"""
+    if not data:
+        return {}
+    
+    # Make a copy to avoid modifying original
+    safe_data = dict(data)
+    
+    # Fix email_security - convert booleans to proper dicts
+    if 'email_security' in safe_data:
+        email_sec = safe_data['email_security']
+        if isinstance(email_sec, bool):
+            safe_data['email_security'] = {
+                'spf': {'present': email_sec, 'record': 'Present' if email_sec else 'Not found'},
+                'dmarc': {'present': email_sec, 'record': 'Present' if email_sec else 'Not found'}
+            }
+        elif isinstance(email_sec, dict):
+            for key in ['spf', 'dmarc']:
+                if key in email_sec and isinstance(email_sec[key], bool):
+                    safe_data['email_security'][key] = {
+                        'present': email_sec[key],
+                        'record': 'Present' if email_sec[key] else 'Not found'
+                    }
+    
+    # Ensure subdomains is a dict with a list
+    if 'subdomains' not in safe_data:
+        safe_data['subdomains'] = {'subdomains': []}
+    elif not isinstance(safe_data['subdomains'], dict):
+        safe_data['subdomains'] = {'subdomains': []}
+    elif 'subdomains' not in safe_data['subdomains']:
+        safe_data['subdomains']['subdomains'] = []
+    
+    # Ensure port_scan is a dict
+    if 'port_scan' not in safe_data:
+        safe_data['port_scan'] = {'open_ports': []}
+    elif not isinstance(safe_data['port_scan'], dict):
+        safe_data['port_scan'] = {'open_ports': []}
+    
+    # Ensure js_libraries is a list
+    if 'js_libraries' not in safe_data:
+        safe_data['js_libraries'] = []
+    elif not isinstance(safe_data['js_libraries'], list):
+        safe_data['js_libraries'] = []
+    
+    # Ensure http_headers is a dict
+    if 'http_headers' not in safe_data:
+        safe_data['http_headers'] = {}
+    
+    # Ensure ssl is a dict
+    if 'ssl' not in safe_data:
+        safe_data['ssl'] = {}
+    
+    # Ensure cookies is a list
+    if 'cookies' not in safe_data:
+        safe_data['cookies'] = []
+    
+    # Ensure active_tests is a list
+    if 'active_tests' not in safe_data:
+        safe_data['active_tests'] = []
+    
+    # Ensure vulnerabilities is a list
+    if 'vulnerabilities' not in safe_data:
+        safe_data['vulnerabilities'] = []
+    
+    return safe_data
 
 # --- Custom Jinja2 filter ---
 @app.template_filter('dict_lower')
@@ -251,7 +354,7 @@ def report(scan_id):
     if scan.status == "Pending":
         return "This scan is still in progress. Please refresh later.", 202
 
-    # Make sure scan_data is a dictionary, not a string
+    # Make sure scan_data is a dictionary
     if isinstance(scan.scan_data, str):
         try:
             scan.scan_data = json.loads(scan.scan_data)
@@ -259,43 +362,20 @@ def report(scan_id):
             scan.scan_data = {"error": "Invalid scan data format.", "active_tests": []} 
     elif scan.scan_data is None: 
          scan.scan_data = {"error": "No scan data available.", "active_tests": []}
+    
+    # Sanitize data for template
+    scan.scan_data = sanitize_scan_data_for_template(scan.scan_data)
 
-    # --- JS_LIBRARIES SANITIZATION (CRITICAL FOR TEMPLATING) ---
-    # This ensures scan.scan_data['js_libraries'] is always a list for the template
-    if 'js_libraries' in scan.scan_data:
-        if isinstance(scan.scan_data['js_libraries'], dict):
-            if "error" in scan.scan_data['js_libraries']:
-                error_msg = scan.scan_data['js_libraries']['error']
-                scan.scan_data['js_libraries'] = [{
-                    "library": "Error",
-                    "version": "N/A",
-                    "severity": "Error",
-                    "summary": f"Error during JS analysis: {error_msg}"
-                }]
-            else:
-                scan.scan_data['js_libraries'] = [{
-                    "library": "N/A",
-                    "version": "-",
-                    "severity": "-",
-                    "summary": "No JavaScript libraries identified or analyzed."
-                }]
-        elif not isinstance(scan.scan_data['js_libraries'], list) or not scan.scan_data['js_libraries']:
-            scan.scan_data['js_libraries'] = [{
-                "library": "N/A",
-                "version": "-",
-                "severity": "-",
-                "summary": "No JavaScript libraries identified or analyzed."
-            }]
-    else:
+    # --- JS_LIBRARIES SANITIZATION ---
+    if 'js_libraries' not in scan.scan_data or not scan.scan_data['js_libraries']:
         scan.scan_data['js_libraries'] = [{
             "library": "N/A",
             "version": "-",
             "severity": "-",
             "summary": "No JavaScript libraries identified or analyzed."
         }]
-    # --- END JS_LIBRARIES SANITIZATION ---
 
-    # --- HISTORICAL VULNERABILITY TRACKING (NEW FEATURE LOGIC) ---
+    # --- HISTORICAL VULNERABILITY TRACKING ---
     delta_report = {"newly_found": [], "resolved": [], "still_present": []}
     
     current_vulnerabilities = scan.scan_data.get('vulnerabilities', [])
@@ -318,6 +398,7 @@ def report(scan_id):
         elif previous_scan.scan_data is not None:
             previous_scan_data_parsed = previous_scan.scan_data
         
+        previous_scan_data_parsed = sanitize_scan_data_for_template(previous_scan_data_parsed)
         previous_vulnerabilities = previous_scan_data_parsed.get('vulnerabilities', [])
         previous_vuln_summaries = {vuln.get('summary') for vuln in previous_vulnerabilities}
 
@@ -330,9 +411,6 @@ def report(scan_id):
         for vuln in previous_vulnerabilities:
             if vuln.get('summary') not in current_vuln_summaries:
                 delta_report['resolved'].append(vuln)
-                
-    # --- END HISTORICAL VULNERABILITY TRACKING ---
-
 
     # --- Security Headers Check ---
     HEADER_CHECKS = {
@@ -368,9 +446,9 @@ def report(scan_id):
         security_headers=security_headers_status,
         recommendations=scan.scan_data.get("recommendations", []), 
         active_tests=scan.scan_data.get("active_tests", []),
-        delta_report=delta_report, # Pass the delta report to the template
-        previous_scan_timestamp=previous_scan.timestamp.isoformat() if previous_scan else None, # Pass timestamp of previous scan
-        datetime=datetime # PASSING DATETIME TO TEMPLATE FOR FROMISOFOMAT
+        delta_report=delta_report,
+        previous_scan_timestamp=previous_scan.timestamp.isoformat() if previous_scan else None,
+        datetime=datetime
     )
 
 @app.route("/download/pdf/<int:scan_id>")
@@ -381,36 +459,17 @@ def download_pdf(scan_id):
         try:
             scan_data_for_template = json.loads(scan.scan_data)
         except json.JSONDecodeError:
-            print(f"Warning: Invalid JSON data for scan ID {scan_id} in DB. Passing empty dict for PDF.")
+            print(f"Warning: Invalid JSON data for scan ID {scan_id}")
             scan_data_for_template = {} 
     elif scan.scan_data is not None:
         scan_data_for_template = scan.scan_data 
     else: 
         scan_data_for_template = {}
 
-    # --- JS_LIBRARIES SANITIZATION for PDF ---
-    if 'js_libraries' in scan_data_for_template:
-        if isinstance(scan_data_for_template['js_libraries'], dict):
-            if "error" in scan_data_for_template['js_libraries']:
-                error_msg = scan_data_for_template['js_libraries']['error']
-                scan_data_for_template['js_libraries'] = [{
-                    "library": "Error", "version": "N/A", "severity": "Error", "summary": f"Error: {error_msg}"
-                }]
-            else:
-                scan_data_for_template['js_libraries'] = [{
-                    "library": "N/A", "version": "-", "severity": "-", "summary": "No JavaScript libraries identified or analyzed."
-                }]
-        elif not isinstance(scan_data_for_template['js_libraries'], list) or not scan_data_for_template['js_libraries']:
-            scan_data_for_template['js_libraries'] = [{
-                "library": "N/A", "version": "-", "severity": "-", "summary": "No JavaScript libraries identified or analyzed."
-            }]
-    else:
-        scan_data_for_template['js_libraries'] = [{
-            "library": "N/A", "version": "-", "severity": "-", "summary": "No JavaScript libraries identified or analyzed."
-        }]
-    # --- End of JS_LIBRARIES SANITIZATION for PDF ---
+    # Sanitize data for template
+    scan_data_for_template = sanitize_scan_data_for_template(scan_data_for_template)
 
-    # --- HISTORICAL VULNERABILITY TRACKING (NEW FEATURE LOGIC for PDF) ---
+    # --- HISTORICAL VULNERABILITY TRACKING for PDF ---
     delta_report_pdf = {"newly_found": [], "resolved": [], "still_present": []}
     
     current_vulnerabilities_pdf = scan_data_for_template.get('vulnerabilities', [])
@@ -433,6 +492,7 @@ def download_pdf(scan_id):
         elif previous_scan_pdf.scan_data is not None:
             previous_scan_data_parsed_pdf = previous_scan_pdf.scan_data
         
+        previous_scan_data_parsed_pdf = sanitize_scan_data_for_template(previous_scan_data_parsed_pdf)
         previous_vulnerabilities_pdf = previous_scan_data_parsed_pdf.get('vulnerabilities', [])
         previous_vuln_summaries_pdf = {vuln.get('summary') for vuln in previous_vulnerabilities_pdf}
 
@@ -445,56 +505,128 @@ def download_pdf(scan_id):
         for vuln in previous_vulnerabilities_pdf:
             if vuln.get('summary') not in current_vuln_summaries_pdf:
                 delta_report_pdf['resolved'].append(vuln)
-    # --- END HISTORICAL VULNERABILITY TRACKING for PDF ---
-
 
     data = scan_data_for_template 
 
-    HEADER_CHECKS = { 'Strict-Transport-Security': {'severity': 'High', 'explanation': 'Protects against protocol downgrade attacks and cookie hijacking.', 'recommendation': 'Implement HSTS to enforce secure (HTTPS) connections.'}, 'Content-Security-Policy': {'severity': 'High', 'explanation': 'Helps prevent Cross-Site Scripting (XSS) and other code injection attacks.', 'recommendation': 'Define a strong CSP to control which resources can be loaded.'}, 'X-Frame-Options': {'severity': 'Medium', 'explanation': 'Protects against "clickjacking" attacks by preventing the site from being framed.', 'recommendation': 'Set to "SAMEORIGIN" or "DENY" to prevent framing.'}, 'X-Content-Type-Options': {'severity': 'Medium', 'explanation': 'Prevents the browser from MIME-sniffing a response away from the declared content-type.', 'recommendation': 'Set this header to "nosniff".'}, 'Referrer-Policy': {'severity': 'Low', 'explanation': 'Controls how much referrer information is sent with requests.', 'recommendation': 'Set a restrictive policy like "strict-origin-when-cross-origin".'}, 'Permissions-Policy': {'severity': 'Low', 'explanation': 'Allows control over which browser features can be used on the site.', 'recommendation': 'Define a policy to disable unneeded features (e.g., microphone, camera).'} }
+    HEADER_CHECKS = { 
+        'Strict-Transport-Security': {'severity': 'High', 'explanation': 'Protects against protocol downgrade attacks and cookie hijacking.', 'recommendation': 'Implement HSTS to enforce secure (HTTPS) connections.'}, 
+        'Content-Security-Policy': {'severity': 'High', 'explanation': 'Helps prevent Cross-Site Scripting (XSS) and other code injection attacks.', 'recommendation': 'Define a strong CSP to control which resources can be loaded.'}, 
+        'X-Frame-Options': {'severity': 'Medium', 'explanation': 'Protects against "clickjacking" attacks by preventing the site from being framed.', 'recommendation': 'Set to "SAMEORIGIN" or "DENY" to prevent framing.'}, 
+        'X-Content-Type-Options': {'severity': 'Medium', 'explanation': 'Prevents the browser from MIME-sniffing a response away from the declared content-type.', 'recommendation': 'Set this header to "nosniff".'}, 
+        'Referrer-Policy': {'severity': 'Low', 'explanation': 'Controls how much referrer information is sent with requests.', 'recommendation': 'Set a restrictive policy like "strict-origin-when-cross-origin".'}, 
+        'Permissions-Policy': {'severity': 'Low', 'explanation': 'Allows control over which browser features can be used on the site.', 'recommendation': 'Define a policy to disable unneeded features (e.g., microphone, camera).'} 
+    }
     
     findings, score = [], 100
+    
     if data and not data.get('error'):
         headers_lower = {k.lower(): v for k, v in data.get('http_headers', {}).items()}
         
-        if data.get('ssl', {}).get('expired'):
+        # SSL Check
+        ssl_info = data.get('ssl', {})
+        if ssl_info.get('expired'):
             score -= 40
-            findings.append({'category': 'SSL/TLS', 'check': 'Certificate Validity', 'status': 'Failed', 'severity': 'Critical', 'explanation': "The SSL certificate has expired, 'Renew the SSL certificate immediately.'"})
+            findings.append({
+                'category': 'SSL/TLS', 
+                'check': 'Certificate Validity', 
+                'status': 'Failed', 
+                'severity': 'Critical', 
+                'explanation': "The SSL certificate has expired.",
+                'recommendation': 'Renew the SSL certificate immediately.'
+            })
         
+        # Security Headers Check
         for header, details in HEADER_CHECKS.items():
             if header.lower() in headers_lower:
-                findings.append({'category': 'Security Header', 'check': header, 'status': 'Present', 'severity': 'Info', 'explanation': details['explanation'], 'recommendation': 'N/A'})
+                findings.append({
+                    'category': 'Security Header', 
+                    'check': header, 
+                    'status': 'Present', 
+                    'severity': 'Info', 
+                    'explanation': details['explanation'], 
+                    'recommendation': 'N/A'
+                })
             else:
-                if details['severity'] == 'High': score -= 15
-                if details['severity'] == 'Medium': score -= 10
-                if details['severity'] == 'Low': score -= 5
-                findings.append({'category': 'Security Header', 'check': header, 'status': 'Missing', 'severity': details['severity'], 'explanation': details['explanation'], 'recommendation': details['recommendation']})
+                if details['severity'] == 'High': 
+                    score -= 15
+                elif details['severity'] == 'Medium': 
+                    score -= 10
+                elif details['severity'] == 'Low': 
+                    score -= 5
+                    
+                findings.append({
+                    'category': 'Security Header', 
+                    'check': header, 
+                    'status': 'Missing', 
+                    'severity': details['severity'], 
+                    'explanation': details['explanation'], 
+                    'recommendation': details['recommendation']
+                })
         
+        # Cookies Check
         for cookie in data.get('cookies', []):
             cookie_flags = [f.lower() for f in cookie.get('flags', [])] 
+            
             if 'httponly' not in cookie_flags: 
                 score -= 5
-                findings.append({'category': 'Cookie Security', 'check': f"Cookie '{cookie['name']}'", 'status': 'Insecure', 'severity': 'Medium', 'explanation': 'Missing the HttpOnly flag, making it accessible to client-side scripts.', 'recommendation': 'Set the HttpOnly flag to prevent access from JavaScript.'})
+                findings.append({
+                    'category': 'Cookie Security', 
+                    'check': f"Cookie '{cookie.get('name', 'unknown')}'", 
+                    'status': 'Insecure', 
+                    'severity': 'Medium', 
+                    'explanation': 'Missing the HttpOnly flag, making it accessible to client-side scripts.', 
+                    'recommendation': 'Set the HttpOnly flag to prevent access from JavaScript.'
+                })
+                
             if 'secure' not in cookie_flags: 
                 score -= 5
-                findings.append({'category': 'Cookie Security', 'check': f"Cookie '{cookie['name']}'", 'status': 'Insecure', 'severity': 'Medium', 'explanation': 'Missing the Secure flag, allowing it to be sent over unencrypted HTTP.', 'recommendation': 'Set the Secure flag to ensure the cookie is only sent over HTTPS.'})
+                findings.append({
+                    'category': 'Cookie Security', 
+                    'check': f"Cookie '{cookie.get('name', 'unknown')}'", 
+                    'status': 'Insecure', 
+                    'severity': 'Medium', 
+                    'explanation': 'Missing the Secure flag, allowing it to be sent over unencrypted HTTP.', 
+                    'recommendation': 'Set the Secure flag to ensure the cookie is only sent over HTTPS.'
+                })
         
-        if not data.get('email_security', {}).get('spf', {}).get('present'):
+        # Email Security Check
+        email_status = get_email_security_status(data)
+        
+        if not email_status['spf'].get('present', False):
             score -= 5
-            findings.append({'category': 'Email Security', 'check': 'SPF Record', 'status': 'Missing', 'severity': 'Low', 'explanation': 'Sender Policy Framework (SPF) helps prevent email spoofing.', 'recommendation': 'Create a valid SPF record in your DNS settings.'})
+            findings.append({
+                'category': 'Email Security', 
+                'check': 'SPF Record', 
+                'status': 'Missing', 
+                'severity': 'Low', 
+                'explanation': 'Sender Policy Framework (SPF) helps prevent email spoofing.', 
+                'recommendation': 'Create a valid SPF record in your DNS settings.'
+            })
         
-        if not data.get('email_security', {}).get('dmarc', {}).get('present'):
+        if not email_status['dmarc'].get('present', False):
             score -= 5
-            findings.append({'category': 'Email Security', 'check': 'DMARC Record', 'status': 'Missing', 'severity': 'Medium', 'explanation': 'DMARC protects against phishing and spoofing attacks.', 'recommendation': 'Create a DMARC record and define a policy (e.g., p=quarantine).'})
+            findings.append({
+                'category': 'Email Security', 
+                'check': 'DMARC Record', 
+                'status': 'Missing', 
+                'severity': 'Medium', 
+                'explanation': 'DMARC protects against phishing and spoofing attacks.', 
+                'recommendation': 'Create a DMARC record and define a policy (e.g., p=quarantine).'
+            })
         
+        # Vulnerabilities from scan
         for vuln in data.get('vulnerabilities', []): 
             category = vuln.get('type', 'General Vulnerability')
             check = vuln.get('summary', 'Details not available')
             severity = vuln.get('severity', 'Unknown')
             recommendation = vuln.get('recommendation', 'Consult security best practices for this vulnerability type.')
             
-            if severity == 'High': score -= 20
-            elif severity == 'Medium': score -= 10
-            elif severity == 'Low': score -= 5
+            if severity == 'High': 
+                score -= 20
+            elif severity == 'Medium': 
+                score -= 10
+            elif severity == 'Low': 
+                score -= 5
 
             findings.append({
                 'category': category,
@@ -505,14 +637,33 @@ def download_pdf(scan_id):
                 'recommendation': recommendation
             })
 
+    # Calculate security score
     security_score = max(0, score)
-    if security_score < 40: risk_level = "Critical"
-    elif security_score < 70: risk_level = "High"
-    elif security_score < 90: risk_level = "Medium"
-    else: risk_level = "Low"
     
-    key_findings = [f for f in findings if f['status'] != 'Present' and f['severity'] in ['Critical', 'High']]
-    recommendations = sorted(list(set([f['recommendation'] for f in key_findings if f['recommendation'] != 'N/A']))) 
+    # Determine risk level
+    if security_score < 40: 
+        risk_level = "Critical"
+    elif security_score < 70: 
+        risk_level = "High"
+    elif security_score < 90: 
+        risk_level = "Medium"
+    else: 
+        risk_level = "Low"
+    
+    # Extract key findings and recommendations
+    key_findings = []
+    for f in findings:
+        if f.get('status') != 'Present' and f.get('severity') in ['Critical', 'High']:
+            key_findings.append(f)
+    
+    # Get unique recommendations
+    recommendations_set = set()
+    for f in key_findings:
+        rec = f.get('recommendation')
+        if rec and rec != 'N/A':
+            recommendations_set.add(rec)
+    
+    recommendations = sorted(list(recommendations_set))
 
     active_tests_pdf = data.get("active_tests", []) 
 
@@ -528,8 +679,9 @@ def download_pdf(scan_id):
         active_tests=active_tests_pdf,
         delta_report=delta_report_pdf, 
         previous_scan_timestamp=previous_scan_pdf.timestamp.isoformat() if previous_scan_pdf else None, 
-        datetime=datetime # PASSING DATETIME TO PDF TEMPLATE
+        datetime=datetime
     )
+    
     pdf_file = BytesIO()
     pisa.CreatePDF(rendered_html, dest=pdf_file)
     pdf_file.seek(0)
@@ -547,15 +699,24 @@ def download_csv(scan_id):
             pass 
     elif scan.scan_data is not None:
         data = scan.scan_data
+    
+    data = sanitize_scan_data_for_template(data)
 
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(["Category", "Issue", "Details", "Severity", "Recommendation"]) 
 
-    HEADER_CHECKS = { 'Strict-Transport-Security': {'severity': 'High', 'explanation': 'Protects against protocol downgrade attacks and cookie hijacking.', 'recommendation': 'Implement HSTS to enforce secure (HTTPS) connections.'}, 'Content-Security-Policy': {'severity': 'High', 'explanation': 'Helps prevent Cross-Site Scripting (XSS) and other code injection attacks.', 'recommendation': 'Define a strong CSP to control which resources can be loaded.'}, 'X-Frame-Options': {'severity': 'Medium', 'explanation': 'Protects against "clickjacking" attacks by preventing the site from being framed.', 'recommendation': 'Set to "SAMEORIGIN" or "DENY" to prevent framing.'}, 'X-Content-Type-Options': {'severity': 'Medium', 'explanation': 'Prevents the browser from MIME-sniffing a response away from the declared content-type.', 'recommendation': 'Set this header to "nosniff".'}, 'Referrer-Policy': {'severity': 'Low', 'explanation': 'Controls how much referrer information is sent with requests.', 'recommendation': 'Set a restrictive policy like "strict-origin-when-cross-origin".'}, 'Permissions-Policy': {'severity': 'Low', 'explanation': 'Allows control over which browser features can be used on the site.', 'recommendation': 'Define a policy to disable unneeded features (e.g., microphone, camera).'} }
+    HEADER_CHECKS = { 
+        'Strict-Transport-Security': {'severity': 'High', 'explanation': 'Protects against protocol downgrade attacks and cookie hijacking.', 'recommendation': 'Implement HSTS to enforce secure (HTTPS) connections.'}, 
+        'Content-Security-Policy': {'severity': 'High', 'explanation': 'Helps prevent Cross-Site Scripting (XSS) and other code injection attacks.', 'recommendation': 'Define a strong CSP to control which resources can be loaded.'}, 
+        'X-Frame-Options': {'severity': 'Medium', 'explanation': 'Protects against "clickjacking" attacks by preventing the site from being framed.', 'recommendation': 'Set to "SAMEORIGIN" or "DENY" to prevent framing.'}, 
+        'X-Content-Type-Options': {'severity': 'Medium', 'explanation': 'Prevents the browser from MIME-sniffing a response away from the declared content-type.', 'recommendation': 'Set this header to "nosniff".'}, 
+        'Referrer-Policy': {'severity': 'Low', 'explanation': 'Controls how much referrer information is sent with requests.', 'recommendation': 'Set a restrictive policy like "strict-origin-when-cross-origin".'}, 
+        'Permissions-Policy': {'severity': 'Low', 'explanation': 'Allows control over which browser features can be used on the site.', 'recommendation': 'Define a policy to disable unneeded features (e.g., microphone, camera).'} 
+    }
 
     if data.get('ssl', {}).get('expired'):
-        writer.writerow(["SSL", "Certificate Expired", f"Expires on {data['ssl']['expires']}", "Critical", "Renew the SSL certificate immediately."])
+        writer.writerow(["SSL", "Certificate Expired", "Certificate has expired", "Critical", "Renew the SSL certificate immediately."])
     
     headers_lower = {k.lower(): v for k, v in data.get('http_headers', {}).items()}
     for header, details in HEADER_CHECKS.items():
@@ -564,13 +725,15 @@ def download_csv(scan_id):
             
     for cookie in data.get('cookies', []):
         if 'httponly' not in [f.lower() for f in cookie.get('flags', [])]:
-            writer.writerow(["Cookie Security", f"Cookie '{cookie['name']}'", "Missing HttpOnly flag", "Medium", "Set the HttpOnly flag to prevent access from JavaScript."])
+            writer.writerow(["Cookie Security", f"Cookie '{cookie.get('name', 'unknown')}'", "Missing HttpOnly flag", "Medium", "Set the HttpOnly flag to prevent access from JavaScript."])
         if 'secure' not in [f.lower() for f in cookie.get('flags', [])]:
-            writer.writerow(["Cookie Security", f"Cookie '{cookie['name']}'", "Missing Secure flag", "Medium", "Set the Secure flag to ensure the cookie is only sent over HTTPS."])
-            
-    if not data.get('email_security', {}).get('spf', {}).get('present'):
+            writer.writerow(["Cookie Security", f"Cookie '{cookie.get('name', 'unknown')}'", "Missing Secure flag", "Medium", "Set the Secure flag to ensure the cookie is only sent over HTTPS."])
+    
+    email_status = get_email_security_status(data)
+    
+    if not email_status['spf'].get('present', False):
         writer.writerow(["Email Security", "SPF Record", "Missing", "Low", "Create a valid SPF record in your DNS settings."])
-    if not data.get('email_security', {}).get('dmarc', {}).get('present'):
+    if not email_status['dmarc'].get('present', False):
         writer.writerow(["Email Security", "DMARC Record", "Missing", "Medium", "Create a DMARC record and define a policy (e.g., p=quarantine)."])
 
     for vuln in data.get('vulnerabilities', []):
@@ -598,7 +761,43 @@ def download_json(scan_id):
     elif scan.scan_data is not None:
         data_to_jsonify = scan.scan_data
     
+    data_to_jsonify = sanitize_scan_data_for_template(data_to_jsonify)
     return make_response(jsonify(data_to_jsonify))
+
+@app.route("/api/ai-insights/<int:scan_id>")
+def get_ai_insights(scan_id):
+    """Get AI analysis insights for a scan"""
+    scan = Scan.query.get_or_404(scan_id)
+    
+    if scan.status != "Completed":
+        return jsonify({"error": "Scan not completed yet"}), 202
+    
+    # Parse scan data
+    if isinstance(scan.scan_data, str):
+        scan_data = json.loads(scan.scan_data)
+    else:
+        scan_data = scan.scan_data or {}
+    
+    scan_data = sanitize_scan_data_for_template(scan_data)
+    
+    ai_analysis = scan_data.get('ai_analysis', {})
+    remediation = scan_data.get('ai_remediation_plan', '')
+    vulnerabilities = scan_data.get('vulnerabilities', [])
+    
+    return jsonify({
+        "scan_id": scan_id,
+        "url": scan.url,
+        "ai_assessment": ai_analysis.get('overall_assessment', 'No AI assessment available'),
+        "risk_score": ai_analysis.get('risk_score', 'N/A'),
+        "vulnerability_counts": {
+            "critical": ai_analysis.get('critical_count', 0),
+            "high": ai_analysis.get('high_count', 0),
+            "medium": ai_analysis.get('medium_count', 0),
+            "low": ai_analysis.get('low_count', 0)
+        },
+        "remediation_plan": remediation,
+        "total_vulnerabilities": len(vulnerabilities)
+    })
 
 # --- Main Block ---
 if __name__ == '__main__':
